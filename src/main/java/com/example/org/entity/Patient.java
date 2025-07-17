@@ -71,7 +71,7 @@ public class Patient {
     private Set<Appointment> appointments = new HashSet<>();
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<com.example.hospital.entity.MedicalRecord> medicalRecords = new HashSet<>();
+    private Set<com.example.org.entity.MedicalRecord> medicalRecords = new HashSet<>();
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Invoice> invoices = new HashSet<>();

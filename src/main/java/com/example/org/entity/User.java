@@ -1,4 +1,4 @@
-package com.example.org.entity;
+package com.example.org.entity; // Updated package
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -69,23 +69,37 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Schedule> schedules = new HashSet<>();
 
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.SET_NULL) // ON DELETE SET NULL
+    // For relationships with ON DELETE SET NULL in SQL, you typically don't use CascadeType.SET_NULL
+    // as it's not a JPA cascade type. The nullable attribute on the @JoinColumn in the child entity
+    // and the database's ON DELETE SET NULL constraint handle this.
+    // We remove the invalid CascadeType.SET_NULL here.
+    @OneToMany(mappedBy = "createdBy") // Removed invalid CascadeType.SET_NULL
     private Set<Invoice> createdInvoices = new HashSet<>();
 
-    @OneToMany(mappedBy = "performedBy", cascade = CascadeType.SET_NULL) // ON DELETE SET NULL
+    @OneToMany(mappedBy = "performedBy") // Removed invalid CascadeType.SET_NULL
     private Set<TestResult> performedTestResults = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.SET_NULL) // ON DELETE SET NULL
+    @OneToMany(mappedBy = "user") // Removed invalid CascadeType.SET_NULL
     private Set<StockTransaction> stockTransactions = new HashSet<>();
 
     // Helper methods to manage relationships (optional, but good practice)
     public void addRole(Role role) {
         this.roles.add(role);
-        role.getUsers().add(this);
+        // Ensure the other side of the relationship is also updated
+        // This line assumes Role entity has a public getUsers() method, which Lombok should generate.
+        // If you still get error here, check your Lombok setup.
+        if (role.getUsers() != null) { // Added null check for safety
+            role.getUsers().add(this);
+        }
     }
 
     public void removeRole(Role role) {
         this.roles.remove(role);
-        role.getUsers().remove(this);
+        // Ensure the other side of the relationship is also updated
+        // This line assumes Role entity has a public getUsers() method, which Lombok should generate.
+        // If you still get error here, check your Lombok setup.
+        if (role.getUsers() != null) { // Added null check for safety
+            role.getUsers().remove(this);
+        }
     }
 }
