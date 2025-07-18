@@ -4,28 +4,33 @@ import com.example.org.service.Impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private AuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder.userDetailsService(userDetailsService)
-                .passwordEncoder(org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance());
-        return builder.build();
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+        return authProvider;
     }
 
     @Bean
@@ -33,15 +38,18 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/assets/**").permitAll()
+                        .requestMatchers("/", "/").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/doctor/**").hasRole("DOCTOR")
                         .requestMatchers("/nurse/**").hasRole("NURSE")
-                        .requestMatchers("/patients/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE","PATIENT")
+                        .requestMatchers("/patients/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE", "PATIENT")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .loginProcessingUrl("/login")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -51,10 +59,5 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return userDetailsService;
     }
 }

@@ -8,6 +8,8 @@ import com.example.org.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,13 +34,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateRoles(Long userId, List<Long> roleIds) {
-        User user = findById(userId);
-        if (user != null) {
-            Set<Role> roles = new HashSet<>(roleRepository.findAllById(roleIds));
-            user.setRoles(roles);
-            userRepository.save(user);
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        Set<Role> roles = new HashSet<>(roleRepository.findAllById(roleIds));
+        user.setRoles(roles);
+        userRepository.save(user);
     }
 
     @Override
@@ -54,35 +57,28 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void registerNewUser(User user, List<String> roleNames) {
-        // Không mã hóa mật khẩu
-        user.setPassword(user.getPassword());
         user.setIsActive(true);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
 
-        // Đảm bảo roles không null (nếu bạn chưa khởi tạo trong constructor)
-        if (user.getRoles() == null) {
-            user.setRoles(new HashSet<>());
-        }
-
-        // Nếu không truyền role → mặc định PATIENT
+        Set<Role> assignedRoles = new HashSet<>();
         if (roleNames == null || roleNames.isEmpty()) {
-            Role defaultRole = roleRepository.findByName("PATIENT");
-            if (defaultRole == null) {
-                throw new RuntimeException("Role 'PATIENT' not found in database.");
+            Role patientRole = roleRepository.findByName("PATIENT");
+            if (patientRole == null) {
+                throw new RuntimeException("Default role 'PATIENT' not found in the database.");
             }
-            user.addRole(defaultRole); // Gán role theo quan hệ 2 chiều
+            assignedRoles.add(patientRole);
         } else {
             for (String roleName : roleNames) {
                 Role role = roleRepository.findByName(roleName);
                 if (role == null) {
                     throw new RuntimeException("Role '" + roleName + "' not found.");
                 }
-                user.addRole(role);
+                assignedRoles.add(role);
             }
         }
+        user.setRoles(assignedRoles);
 
-        userRepository.save(user); // Tự động lưu vào user_roles nếu quan hệ đúng
+        userRepository.save(user);
     }
-
-
-
 }
