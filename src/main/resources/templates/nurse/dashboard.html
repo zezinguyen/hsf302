@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <title>Nurse Dashboard - Preclinic</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+</head>
+
+<body>
+<div class="main-wrapper">
+    <div class="header">
+        <div class="header-left">
+            <a href="index-2.html" class="logo">
+                <img src="assets/img/logo.png" width="35" height="35" alt=""> <span>Preclinic</span>
+            </a>
+        </div>
+        <a id="toggle_btn" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
+        <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fa fa-bars"></i></a>
+        <ul class="nav user-menu float-right">
+            <li class="nav-item dropdown d-none d-sm-block">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown"><i class="fa fa-bell-o"></i> <span class="badge badge-pill bg-danger float-right" th:text="${notificationsCount}">3</span></a>
+                <div class="dropdown-menu notifications">
+                    <div class="topnav-dropdown-header">
+                        <span>Notifications</span>
+                    </div>
+                    <div class="drop-scroll">
+                        <ul class="notification-list">
+                            <li class="notification-message" th:each="notification : ${notifications}">
+                                <a th:href="@{/activities.html}">
+                                    <div class="media">
+											<span class="avatar">
+												<img alt="User Image" th:src="${notification.avatarSrc}" class="img-fluid" th:if="${notification.avatarSrc}">
+                                                <span th:text="${notification.avatarText}" th:if="${!notification.avatarSrc}"></span>
+											</span>
+                                        <div class="media-body">
+                                            <p class="noti-details"><span class="noti-title" th:text="${notification.title}">John Doe</span> <span th:text="${notification.message}">added new task</span> <span class="noti-title" th:text="${notification.task}">Patient appointment booking</span></p>
+                                            <p class="noti-time"><span class="notification-time" th:text="${notification.time}">4 mins ago</span></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="topnav-dropdown-footer">
+                        <a href="activities.html">View all Notifications</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item dropdown d-none d-sm-block">
+                <a href="javascript:void(0);" id="open_msg_box" class="hasnotifications nav-link"><i class="fa fa-comment-o"></i> <span class="badge badge-pill bg-danger float-right" th:text="${messagesCount}">8</span></a>
+            </li>
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown">
+                        <span class="user-img">
+							<img class="rounded-circle" th:src="${user.profilePic}" width="24" alt="Nurse">
+							<span class="status online"></span>
+						</span>
+                    <span th:text="${user.name}">Nurse Jane Smith</span>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="profile.html">My Profile</a>
+                    <a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
+                    <a class="dropdown-item" href="settings.html">Settings</a>
+                    <a class="dropdown-item" href="login.html">Logout</a>
+                </div>
+            </li>
+        </ul>
+        <div class="dropdown mobile-user-menu float-right">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="profile.html">My Profile</a>
+                <a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
+                <a class="dropdown-item" href="settings.html">Settings</a>
+                <a class="dropdown-item" href="login.html">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-inner slimscroll">
+            <div id="sidebar-menu" class="sidebar-menu">
+                <ul>
+                    <li class="menu-title">Main</li>
+                    <li class="active">
+                        <a th:href="@{/nurse-dashboard.html}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/patients.html}"><i class="fa fa-wheelchair"></i> <span>Patients in Ward</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/tasks.html}"><i class="fa fa-list-ul"></i> <span>My Tasks</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/medication.html}"><i class="fa fa-medkit"></i> <span>Medication Schedule</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/chat.html}"><i class="fa fa-comments"></i> <span>Chat</span> <span class="badge badge-pill bg-primary float-right" th:text="${unreadChatsCount}">5</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="page-wrapper">
+        <div class="content">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg1"><i class="fa fa-bed" aria-hidden="true"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${patientsInWard}">45</h3>
+                            <span class="widget-title1">Patients in My Ward <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg2"><i class="fa fa-tasks"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${pendingTasks}">12</h3>
+                            <span class="widget-title2">Pending Tasks <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg3"><i class="fa fa-medkit" aria-hidden="true"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${upcomingMedications}">28</h3>
+                            <span class="widget-title3">Upcoming Medications <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg4"><i class="fa fa-bell-o" aria-hidden="true"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${newAlerts}">3</h3>
+                            <span class="widget-title4">New Alerts <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title d-inline-block">Patient Overview (My Ward)</h4> <a th:href="@{/patients.html}" class="btn btn-primary float-right">View all</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>Room/Bed</th>
+                                        <th>Condition</th>
+                                        <th class="text-right">Last Update</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="patient : ${wardPatients}">
+                                        <td style="min-width: 200px;">
+                                            <a class="avatar" th:href="@{/patient-profile.html(id=${patient.id})}" th:text="${patient.avatar}">J</a>
+                                            <h2><a th:href="@{/patient-profile.html(id=${patient.id})}" th:text="${patient.name}">John Doe <span>Age: 45</span></a></h2>
+                                        </td>
+                                        <td th:text="${patient.roomBed}">Room 101 / Bed 2</td>
+                                        <td th:text="${patient.condition}">Stable</td>
+                                        <td class="text-right" th:text="${patient.lastUpdate}">1 hour ago</td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(wardPatients)}">
+                                        <td colspan="4" class="text-center">No patients in your assigned ward.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-8 col-xl-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title d-inline-block">My Pending Tasks </h4> <a th:href="@{/tasks.html}" class="btn btn-primary float-right">View all</a>
+                        </div>
+                        <div class="card-block">
+                            <div class="table-responsive">
+                                <table class="table mb-0 new-patient-table">
+                                    <tbody>
+                                    <tr th:each="task : ${pendingTasksList}">
+                                        <td>
+                                            <i class="fa fa-check-square-o" th:if="${task.completed}"></i>
+                                            <i class="fa fa-square-o" th:if="${!task.completed}"></i>
+                                            <h2 th:text="${task.description}">Administer Medication to Patient A</h2>
+                                        </td>
+                                        <td th:text="${task.patientName}">Patient A</td>
+                                        <td th:text="${task.dueDate}">Due: 10:00 AM</td>
+                                        <td><button class="btn btn-outline-primary float-right">Mark Done</button></td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(pendingTasksList)}">
+                                        <td colspan="4" class="text-center">No pending tasks.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="hospital-barchart">
+                        <h4 class="card-title d-inline-block">Patient Care Activity</h4>
+                    </div>
+                    <div class="bar-chart">
+                        <div class="legend">
+                            <div class="item">
+                                <h4>Medication</h4>
+                            </div>
+
+                            <div class="item">
+                                <h4>Vitals Taken</h4>
+                            </div>
+                        </div>
+                        <div class="chart clearfix">
+                            <div class="item">
+                                <div class="bar">
+                                    <span class="percent" th:text="${medicationAdministeredPercent + '%'}">75%</span>
+                                    <div class="item-progress" th:attr="data-percent=${medicationAdministeredPercent}">
+                                        <span class="title">Medication Administered</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="bar">
+                                    <span class="percent" th:text="${vitalsTakenPercent + '%'}">90%</span>
+                                    <div class="item-progress" th:attr="data-percent=${vitalsTakenPercent}">
+                                        <span class="title">Vitals Taken</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="bar">
+                                    <span class="percent" th:text="${woundCarePercent + '%'}">60%</span>
+                                    <div class="item-progress" th:attr="data-percent=${woundCarePercent}">
+                                        <span class="title">Wound Care</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="notification-box">
+            <div class="msg-sidebar notifications msg-noti">
+                <div class="topnav-dropdown-header">
+                    <span>Messages</span>
+                </div>
+                <div class="drop-scroll msg-list-scroll" id="msg_list">
+                    <ul class="list-box">
+                        <li th:each="message : ${recentMessages}">
+                            <a th:href="@{/chat.html}">
+                                <div class="list-item">
+                                    <div class="list-left">
+                                        <span class="avatar" th:text="${message.avatarText}">R</span>
+                                    </div>
+                                    <div class="list-body">
+                                        <span class="message-author" th:text="${message.author}">Richard Miles </span>
+                                        <span class="message-time" th:text="${message.time}">12:28 AM</span>
+                                        <div class="clearfix"></div>
+                                        <span class="message-content" th:text="${message.content}">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="topnav-dropdown-footer">
+                    <a href="chat.html">See all messages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="sidebar-overlay" data-reff=""></div>
+<script src="assets/js/jquery-3.2.1.min.js"></script>
+<script src="assets/js/popper.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/jquery.slimscroll.js"></script>
+<script src="assets/js/Chart.bundle.js"></script>
+<script src="assets/js/chart.js"></script>
+<script src="assets/js/app.js"></script>
+
+</body>
+
+</html>
