@@ -1,10 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <title>Doctor Dashboard - Preclinic</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 </head>
+
 <body>
+<div class="main-wrapper">
+    <div class="header">
+        <div class="header-left">
+            <a href="index-2.html" class="logo">
+                <img src="assets/img/logo.png" width="35" height="35" alt=""> <span>Preclinic</span>
+            </a>
+        </div>
+        <a id="toggle_btn" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
+        <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fa fa-bars"></i></a>
+        <ul class="nav user-menu float-right">
+            <li class="nav-item dropdown d-none d-sm-block">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown"><i class="fa fa-bell-o"></i> <span class="badge badge-pill bg-danger float-right" th:text="${notificationsCount}">3</span></a>
+                <div class="dropdown-menu notifications">
+                    <div class="topnav-dropdown-header">
+                        <span>Notifications</span>
+                    </div>
+                    <div class="drop-scroll">
+                        <ul class="notification-list">
+                            <li class="notification-message" th:each="notification : ${notifications}">
+                                <a th:href="@{/activities.html}">
+                                    <div class="media">
+											<span class="avatar">
+												<img alt="User Image" th:src="${notification.avatarSrc}" class="img-fluid" th:if="${notification.avatarSrc}">
+                                                <span th:text="${notification.avatarText}" th:if="${!notification.avatarSrc}"></span>
+											</span>
+                                        <div class="media-body">
+                                            <p class="noti-details"><span class="noti-title" th:text="${notification.title}">John Doe</span> <span th:text="${notification.message}">added new task</span> <span class="noti-title" th:text="${notification.task}">Patient appointment booking</span></p>
+                                            <p class="noti-time"><span class="notification-time" th:text="${notification.time}">4 mins ago</span></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="topnav-dropdown-footer">
+                        <a href="activities.html">View all Notifications</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item dropdown d-none d-sm-block">
+                <a href="javascript:void(0);" id="open_msg_box" class="hasnotifications nav-link"><i class="fa fa-comment-o"></i> <span class="badge badge-pill bg-danger float-right" th:text="${messagesCount}">8</span></a>
+            </li>
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown">
+                        <span class="user-img">
+							<img class="rounded-circle" th:src="${user.profilePic}" width="24" alt="Doctor">
+							<span class="status online"></span>
+						</span>
+                    <span th:text="${user.name}">Dr. John Doe</span>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="profile.html">My Profile</a>
+                    <a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
+                    <a class="dropdown-item" href="settings.html">Settings</a>
+                    <a class="dropdown-item" href="login.html">Logout</a>
+                </div>
+            </li>
+        </ul>
+        <div class="dropdown mobile-user-menu float-right">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="profile.html">My Profile</a>
+                <a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
+                <a class="dropdown-item" href="settings.html">Settings</a>
+                <a class="dropdown-item" href="login.html">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-inner slimscroll">
+            <div id="sidebar-menu" class="sidebar-menu">
+                <ul>
+                    <li class="menu-title">Main</li>
+                    <li class="active">
+                        <a th:href="@{/doctor-dashboard.html}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/patients.html}"><i class="fa fa-wheelchair"></i> <span>My Patients</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/appointments.html}"><i class="fa fa-calendar"></i> <span>My Appointments</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/schedule.html}"><i class="fa fa-calendar-check-o"></i> <span>My Schedule</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/chat.html}"><i class="fa fa-comments"></i> <span>Chat</span> <span class="badge badge-pill bg-primary float-right" th:text="${unreadChatsCount}">5</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="page-wrapper">
+        <div class="content">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg1"><i class="fa fa-user-md" aria-hidden="true"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${totalPatients}">120</h3>
+                            <span class="widget-title1">Total Patients <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg2"><i class="fa fa-calendar-check-o"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${todayAppointments}">15</h3>
+                            <span class="widget-title2">Today's Appointments <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg3"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${pendingAppointments}">5</h3>
+                            <span class="widget-title3">Pending Appointments <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                    <div class="dash-widget">
+                        <span class="dash-widget-bg4"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+                        <div class="dash-widget-info text-right">
+                            <h3 th:text="${newMedicalRecords}">8</h3>
+                            <span class="widget-title4">New Medical Records <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title d-inline-block">My Upcoming Appointments</h4> <a th:href="@{/appointments.html}" class="btn btn-primary float-right">View all</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead class="d-none">
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>Timing</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="appointment : ${upcomingAppointments}">
+                                        <td style="min-width: 200px;">
+                                            <a class="avatar" th:href="@{/patient-profile.html(id=${appointment.patientId})}" th:text="${appointment.patientAvatar}">B</a>
+                                            <h2><a th:href="@{/patient-profile.html(id=${appointment.patientId})}" th:text="${appointment.patientName}">Bernardo Galaviz <span>New York, USA</span></a></h2>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">Timing</h5>
+                                            <p th:text="${appointment.time}">7.00 PM</p>
+                                        </td>
+                                        <td class="text-right">
+                                            <a th:href="@{/start-consultation.html(id=${appointment.id})}" class="btn btn-outline-primary take-btn">Start Consultation</a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(upcomingAppointments)}">
+                                        <td colspan="3" class="text-center">No upcoming appointments.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-8 col-xl-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title d-inline-block">Recent Patients </h4> <a th:href="@{/patients.html}" class="btn btn-primary float-right">View all</a>
+                        </div>
+                        <div class="card-block">
+                            <div class="table-responsive">
+                                <table class="table mb-0 new-patient-table">
+                                    <tbody>
+                                    <tr th:each="patient : ${recentPatients}">
+                                        <td>
+                                            <img width="28" height="28" class="rounded-circle" th:src="${patient.profilePic}" alt="">
+                                            <h2 th:text="${patient.name}">John Doe</h2>
+                                        </td>
+                                        <td th:text="${patient.email}">Johndoe21@gmail.com</td>
+                                        <td th:text="${patient.phone}">+1-202-555-0125</td>
+                                        <td><button class="btn btn-primary btn-primary-one float-right" th:classappend="${patient.conditionClass}" th:text="${patient.condition}">Fever</button></td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(recentPatients)}">
+                                        <td colspan="4" class="text-center">No recent patients.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="hospital-barchart">
+                        <h4 class="card-title d-inline-block">My Consultations</h4>
+                    </div>
+                    <div class="bar-chart">
+                        <div class="legend">
+                            <div class="item">
+                                <h4>Online</h4>
+                            </div>
+
+                            <div class="item">
+                                <h4>In-person</h4>
+                            </div>
+                        </div>
+                        <div class="chart clearfix">
+                            <div class="item">
+                                <div class="bar">
+                                    <span class="percent" th:text="${onlineConsultationPercent + '%'}">16%</span>
+                                    <div class="item-progress" th:attr="data-percent=${onlineConsultationPercent}">
+                                        <span class="title">Online Consultations</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="bar">
+                                    <span class="percent" th:text="${inPersonConsultationPercent + '%'}">71%</span>
+                                    <div class="item-progress" th:attr="data-percent=${inPersonConsultationPercent}">
+                                        <span class="title">In-person Consultations</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="bar">
+                                    <span class="percent" th:text="${followUpPercent + '%'}">82%</span>
+                                    <div class="item-progress" th:attr="data-percent=${followUpPercent}">
+                                        <span class="title">Follow-ups</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="notification-box">
+            <div class="msg-sidebar notifications msg-noti">
+                <div class="topnav-dropdown-header">
+                    <span>Messages</span>
+                </div>
+                <div class="drop-scroll msg-list-scroll" id="msg_list">
+                    <ul class="list-box">
+                        <li th:each="message : ${recentMessages}">
+                            <a th:href="@{/chat.html}">
+                                <div class="list-item">
+                                    <div class="list-left">
+                                        <span class="avatar" th:text="${message.avatarText}">R</span>
+                                    </div>
+                                    <div class="list-body">
+                                        <span class="message-author" th:text="${message.author}">Richard Miles </span>
+                                        <span class="message-time" th:text="${message.time}">12:28 AM</span>
+                                        <div class="clearfix"></div>
+                                        <span class="message-content" th:text="${message.content}">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="topnav-dropdown-footer">
+                    <a href="chat.html">See all messages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="sidebar-overlay" data-reff=""></div>
+<script src="assets/js/jquery-3.2.1.min.js"></script>
+<script src="assets/js/popper.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/jquery.slimscroll.js"></script>
+<script src="assets/js/Chart.bundle.js"></script>
+<script src="assets/js/chart.js"></script>
+<script src="assets/js/app.js"></script>
 
 </body>
+
 </html>
